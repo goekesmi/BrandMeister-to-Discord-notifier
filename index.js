@@ -1,5 +1,7 @@
 const MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS = 2;
 const ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS = 900;  // 0 = don't use this feature
+const TALK_GROUPS_TO_MONITOR_STRINGS = process.env.TALKGROUPS.split(' ');
+const TALK_GROUPS_TO_MONITOR = TALK_GROUPS_TO_MONITOR_STRINGS.map(Number);
 
 
 
@@ -20,10 +22,10 @@ require('dotenv').config(); //initialize dotenv
 const Discord = require('discord.js'); //import discord.js
 
 const client = new Discord.Client({ intents: 3072}); //create new client
+const socket = io(BM_DEFAULT_URL, BM_DEFAULT_OPTS);
 
 channels = [];
 channel_list = process.env.CHANNELS.split(' ');
-const TALK_GROUPS_TO_MONITOR = process.env.TALKGROUPS.split(' ');
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
@@ -35,15 +37,9 @@ client.on('ready', () => {
 });
 
 
-//make sure this line is the last line
-client.login(process.env.CLIENT_TOKEN); //login bot using token
-		
-const socket = io(BM_DEFAULT_URL, BM_DEFAULT_OPTS);
-
-socket.open();
-
 socket.on('connect', () => {
     console.log('Connected to BM API');
+    console.log('TALK_GROUPS_TO_MONITOR',TALK_GROUPS_TO_MONITOR);
 });
 
 
@@ -64,7 +60,7 @@ socket.on('mqtt', (msg) => {
             if (!ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS || (ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS && (!lastHeard || new Date().getTime() - lastHeard > ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS * 1000))) {
                 console.log('Notify');
 		channels.forEach( channel => {
-			console.log(channel)
+			console.log(channel.id, channel.name)
 			channel.send(msg)
 			//client.channels.fetch("971516057804218478").then( (channel) => channel.send(msg))
 		});
@@ -80,4 +76,9 @@ socket.on('mqtt', (msg) => {
 
 
 
+socket.open();
 
+
+
+//make sure this line is the last line
+client.login(process.env.CLIENT_TOKEN); //login bot using token
