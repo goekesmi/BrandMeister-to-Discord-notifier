@@ -1,5 +1,4 @@
 const MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS = 2;
-const TALK_GROUPS_TO_MONITOR = [98638];
 const ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS = 900;  // 0 = don't use this feature
 
 
@@ -23,20 +22,22 @@ const Discord = require('discord.js'); //import discord.js
 const client = new Discord.Client({ intents: 3072}); //create new client
 
 channels = [];
+channel_list = process.env.CHANNELS.split(' ');
+const TALK_GROUPS_TO_MONITOR = process.env.TALKGROUPS.split(' ');
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-	client.channels.fetch('971516057804218478').then( (gotchannel) => channels.push(gotchannel)) ;
-	client.channels.fetch('518587327493439518').then( (gotchannel) => channels.push(gotchannel)) ;
+	channel_list.forEach( channel_num => {
+			client.channels.fetch(channel_num).then( (gotchannel) => channels.push(gotchannel)) ;
+			console.log(channel_num)
+		});
 
 });
 
 
 //make sure this line is the last line
 client.login(process.env.CLIENT_TOKEN); //login bot using token
-
 		
-
 const socket = io(BM_DEFAULT_URL, BM_DEFAULT_OPTS);
 
 socket.open();
@@ -48,7 +49,6 @@ socket.on('connect', () => {
 
 socket.on('mqtt', (msg) => {
     const lhMsg = JSON.parse(msg.payload);
-    console.log(lhMsg);
     if (TALK_GROUPS_TO_MONITOR.indexOf(lhMsg.DestinationID) > -1 && lhMsg.Stop !== 0 && (lhMsg.Stop - lhMsg.Start) >= MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS && !sessionIdCache.get(lhMsg.SessionID)) {
         sessionIdCache.set(lhMsg.SessionID, true);
         if ((Math.round(new Date().getTime() / 1000) - lhMsg.Stop) <= CACHE_SECONDS) {
