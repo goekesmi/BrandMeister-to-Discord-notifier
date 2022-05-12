@@ -1,13 +1,13 @@
 {
   "name": "BrandMeisterToDiscordNotifier",
-  "version": "1.0.0",
+  "version": "0.0.9",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jeff Goeke-Smith <goekesmi@hey.com>",
-  "license": "FAFO",
+  "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
     "discord.js": "^13.6.0",
