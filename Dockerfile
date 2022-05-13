@@ -2,10 +2,9 @@
 FROM node:16
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package*.json index.js ./
 
 RUN npm install
-COPY index.js .
 CMD [ "node", "index.js" ]
 
 # Lightsail push
