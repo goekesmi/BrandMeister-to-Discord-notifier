@@ -1,12 +1,21 @@
+// Load Environment
+require('dotenv').config(); //initialize dotenv
+
+// hard coded time outs
 const MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS = 2;
 const ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS = 900;  // 0 = don't use this feature
+//Do not display messages older than CACHE_SECONDS ago and do not display messages with a duplicate SessionID within CACHE_SECONDS. The default value is typically fine here.
+const CACHE_SECONDS = 60;
+
+// Learn talkgroups from the environment
 const TALK_GROUPS_TO_MONITOR_STRINGS = process.env.TALKGROUPS.split(' ');
 const TALK_GROUPS_TO_MONITOR = TALK_GROUPS_TO_MONITOR_STRINGS.map(Number);
 
+// Learn the discord channels from the environment
+channels = [];
+channel_list = process.env.CHANNELS.split(' ');
 
 
-//Do not display messages older than CACHE_SECONDS ago and do not display messages with a duplicate SessionID within CACHE_SECONDS. The default value is typically fine here.
-const CACHE_SECONDS = 60;
 const io = require('socket.io-client');
 const moment = require('moment');
 const NodeCache = require('node-cache');
@@ -18,18 +27,15 @@ const BM_DEFAULT_OPTS = {
     reconnection: true
 };
 
-require('dotenv').config(); //initialize dotenv
 const Discord = require('discord.js'); //import discord.js
+const client = new Discord.Client({ intents: 3072}); //create new discord client
 
-const client = new Discord.Client({ intents: 3072}); //create new client
+// Setup the socket for BrandMeister
 const socket = io(BM_DEFAULT_URL, BM_DEFAULT_OPTS);
-
-channels = [];
-channel_list = process.env.CHANNELS.split(' ');
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-	channel_list.forEach( channel_num => {
+	channel_list.forEach( channel_num => {  // Loads / caches all the channel structures
 			client.channels.fetch(channel_num).then( (gotchannel) => channels.push(gotchannel)) ;
 			console.log(channel_num)
 		});
@@ -43,7 +49,7 @@ socket.on('connect', () => {
 });
 
 
-socket.on('mqtt', (msg) => {
+socket.on('mqtt', (msg) => { // The main event loop
     const lhMsg = JSON.parse(msg.payload);
     if (TALK_GROUPS_TO_MONITOR.indexOf(lhMsg.DestinationID) > -1 && lhMsg.Stop !== 0 && (lhMsg.Stop - lhMsg.Start) >= MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS && !sessionIdCache.get(lhMsg.SessionID)) {
         sessionIdCache.set(lhMsg.SessionID, true);
@@ -75,9 +81,5 @@ socket.on('mqtt', (msg) => {
 
 
 
-socket.open();
-
-
-
-//make sure this line is the last line
-client.login(process.env.CLIENT_TOKEN); //login bot using token
+socket.open(); // open the BrandMeister Connection
+client.login(process.env.CLIENT_TOKEN); //login to Discord using token
