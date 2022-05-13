@@ -62,7 +62,6 @@ socket.on('mqtt', (msg) => {
 		channels.forEach( channel => {
 			console.log(channel.id, channel.name)
 			channel.send(msg)
-			//client.channels.fetch("971516057804218478").then( (channel) => channel.send(msg))
 		});
 	
 		
