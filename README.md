@@ -18,6 +18,13 @@ identifiers that need to be notified
 * TALKGROUPS which is a space seperated list of Brand Meister talk 
 group identifiers to watch for traffic on.
 
+* MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS is a single integer which is
+how long a transmission must run to be considered activity.
+
+* ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS is a single integer which
+is how long a talkgroup must be idle before a new notification will be
+sent.
+
 The discord bot identity will need 'bot', 'Read Messages/View Channels'
 and 'Send Messages'
 
