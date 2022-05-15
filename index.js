@@ -2,14 +2,13 @@
 require('dotenv').config(); //initialize dotenv
 
 // hard coded time outs
-const MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS = 2;
-const ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS = 900;  // 0 = don't use this feature
+const MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS = process.env.MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS.Number;
+const ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS = process.env.ONLY_NOTIFY_IF_NO_TRANSMISSIONS_FOR_SECONDS.Number;  // 0 = don't use this feature
 //Do not display messages older than CACHE_SECONDS ago and do not display messages with a duplicate SessionID within CACHE_SECONDS. The default value is typically fine here.
 const CACHE_SECONDS = 60;
 
 // Learn talkgroups from the environment
-const TALK_GROUPS_TO_MONITOR_STRINGS = process.env.TALKGROUPS.split(' ');
-const TALK_GROUPS_TO_MONITOR = TALK_GROUPS_TO_MONITOR_STRINGS.map(Number);
+const TALK_GROUPS_TO_MONITOR = process.env.TALKGROUPS.split(' ').map(Number);
 
 // Learn the discord channels from the environment
 channels = [];
