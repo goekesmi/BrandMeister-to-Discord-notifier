@@ -50,6 +50,8 @@ socket.on('connect', () => {
 
 socket.on('mqtt', (msg) => { // The main event loop
     const lhMsg = JSON.parse(msg.payload);
+    // This is loud
+    console.log(lhMsg);
     if (TALK_GROUPS_TO_MONITOR.indexOf(lhMsg.DestinationID) > -1 && lhMsg.Stop !== 0 && (lhMsg.Stop - lhMsg.Start) >= MINIMUM_REQUIRED_TRANSMIT_TIME_SECONDS && !sessionIdCache.get(lhMsg.SessionID)) {
         sessionIdCache.set(lhMsg.SessionID, true);
         if ((Math.round(new Date().getTime() / 1000) - lhMsg.Stop) <= CACHE_SECONDS) {
